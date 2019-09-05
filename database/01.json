@@ -1,0 +1,81 @@
+{
+	"name":"admin",
+	"password":"123456",
+	"email":"creamlidan@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181113/1542101976665263.png",
+	"type":0,
+	"status":1,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"aaa",
+	"password":"123456",
+	"email":"aaa@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181113/1542102048155592.png",
+	"type":1,
+	"status":1,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"bbb",
+	"password":"123456",
+	"email":"bbb@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181114/1542180703576968.gif",
+	"type":1,
+	"status":0,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"ccc",
+	"password":"123456",
+	"email":"ccc@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181113/1542102048155592.png",
+	"type":1,
+	"status":1,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"ddd",
+	"password":"123456",
+	"email":"ddd@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181114/1542180703576968.gif",
+	"type":1,
+	"status":0,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"eee",
+	"password":"123456",
+	"email":"eeee@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181113/1542102048155592.png",
+	"type":1,
+	"status":0,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"ddd",
+	"password":"123456",
+	"email":"ddd@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181114/1542180703576968.gif",
+	"type":1,
+	"status":0,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"fff",
+	"password":"123456",
+	"email":"fff@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181113/1542102048155592.png",
+	"type":1,
+	"status":0,
+	"create_time": "(new Date()).valueOf()"
+}
+{
+	"name":"drrrdd",
+	"password":"123456",
+	"email":"rrrr@163.com",
+	"image":"https://images_main.guorangongshe.com/ueditor/php/upload/image/20181114/1542180703576968.gif",
+	"type":1,
+	"status":1,
+	"create_time": "(new Date()).valueOf()"
+}
