@@ -1,0 +1,7 @@
+git
+.idea
+npm-debug.log
+./src/mock/node_modules
+dist
+./dist
+/node_modules

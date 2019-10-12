@@ -34,11 +34,12 @@ const userSchema = new mongoose.Schema({
 	image:String,
 	type:Number,
 	status:Number,
-	create_time:String
+	create_time:Number
 })
 const User = mongoose.model('User',userSchema)
+
 //用户列表
-app.get("/api/userList",function(req,res){
+app.get("/api/user/List",function(req,res){
 	User.find().then(result=>{
 		let data = util.returnData({
 			userList:result,
@@ -47,9 +48,8 @@ app.get("/api/userList",function(req,res){
 	    res.end(JSON.stringify(data));
 	})
 })
-
 //搜索列表
-app.post("/api/searchUserList",function(req,res){
+app.post("/api/user/searchList",function(req,res){
 	let params = req.body,
 		$findParams = {},
 		total = 0;
@@ -68,6 +68,17 @@ app.post("/api/searchUserList",function(req,res){
 			})
 		    res.end(JSON.stringify(data));
 		})
+	})
+})
+
+//修改用户列表的用户状态
+app.post("/api/user/changeStatus",function(req,res){
+	let id = req.body.id,
+		status = req.body.status;
+		console.log(status)
+	User.findOne({_id:id},{status:status}).then(result=>{
+		let data = util.returnData({})
+	    res.end(JSON.stringify(data));
 	})
 })
 
