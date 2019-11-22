@@ -2,6 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
 const mongoose = require('mongoose')
+var node_xj = require("xls-to-json");
 var util = require('./public/util');
 //链接数据库如果数据库没有则会自动创建
 mongoose.connect('mongodb://localhost/blogs',{useNewUrlParser:true})
@@ -40,14 +41,23 @@ User = mongoose.model('User',userSchema)
 
 //用户列表
 app.get("/api/user/List",(req,res)=>{
-	User.find().then(result=>{
+	User.find().select('-password').then(result=>{
+		let total = result.length;
 		let data = util.returnData({
 			userList:result,
-	        total:result.length
+	        total:total
 		})
 	    res.end(JSON.stringify(data));
 	})
 })
+/*	User.find($findParams).skip((params.pageNum-1)*params.pageSize).limit(Number(params.pageSize)).then(result=>{
+		total = result.length;
+		let data = util.returnData({
+			userList:result,
+	        total:total
+		})
+	    res.end(JSON.stringify(data));
+	})*/
 //搜索列表
 app.post("/api/user/searchList",(req,res)=>{
 	let params = req.body,
@@ -59,7 +69,7 @@ app.post("/api/user/searchList",(req,res)=>{
 	if(params.type != ''){
 		$findParams.type = params.type
 	}
-	User.find($findParams).skip((params.pageNum-1)*params.pageSize).limit(Number(params.pageSize)).then(result=>{
+	User.find($findParams).then(result=>{
 		total = result.length;
 		let data = util.returnData({
 			userList:result,
@@ -156,6 +166,7 @@ app.post("/api/article/articleWrite",(req,res)=>{
 	    		message:"新增成功~"
 	    	})
 	        res.end(JSON.stringify(data));
+
 	    })
 	    .catch(err=>{
 	        let data = {
@@ -193,7 +204,7 @@ app.post("/api/article/searchList",(req,res)=>{
 	if(params.type != ''){
 		$findParams.type = params.type
 	}
-	Article.find($findParams).skip((params.pageNum-1)*params.pageSize).limit(Number(params.pageSize)).then(result=>{
+	Article.find($findParams).then(result=>{
 		total = result.length;
 		for(let i = 0; i < result.length; i++){
 			result[i].interactionNums = [result[i].articleWatch,result[i].articleLike,result[i].articleCommon]
@@ -294,6 +305,7 @@ app.post("/api/leave/settingShow",(req,res)=>{
 //创建标签规则
 const labelSchema = new mongoose.Schema({
 	label_name:String,
+	article_nums:Number,
 	create_time:Number
 })
 
@@ -309,10 +321,29 @@ app.get("/api/label/labelList",(req,res)=>{
 		$findParams = null;
 	}
 	Label.find($findParams).then(result=>{
-		let data = util.returnData({
-			labelList:result
-		})
-	    res.end(JSON.stringify(data));
+		//查询出来所有的便签
+		//循环查询每个便签下的文章数量
+		let $result = result,
+		nums = 0;
+		for(let i =0; i < $result.length; i++){
+			Article.find({tag:$result[i]._id}).then($article=>{
+				$result[i].article_nums = $article.length;
+				Label.updateOne({_id:$result[i]._id},{article_nums:$article.length}).then($label=>{
+					console.log($label)
+				})
+				nums++;
+			})
+		}
+		//循环查询是否已经完成异步查询
+		let timer = setInterval(()=>{
+			if(nums == $result.length){
+				clearInterval(timer);
+				let data = util.returnData({
+					labelList:result
+				})
+			    res.end(JSON.stringify(data));
+			}
+		},10)
 	})
 })
 
@@ -320,6 +351,7 @@ app.get("/api/label/labelList",(req,res)=>{
 app.post("/api/label/addLabel",(req,res)=>{
 	let data = {
 		label_name:req.body.labelName,
+		label_Article:0,
 		createTime:new Date().getTime(),
 	}
 	Label.create(data)
@@ -352,10 +384,12 @@ app.post("/api/label/delLabel",(req,res)=>{
 		}else{
 			Label.findOne({label_name:'其它'}).then(resu=>{
 				Article.updateMany({tag:id},{tag:resu._id}).then(resul=>{
-					let data = util.returnData({
-			    		message:"该标签下的文章将全部归类到'其它'标签中~"
-			    	})
-			        res.end(JSON.stringify(data));
+					Label.findOneAndDelete({_id:id}).then(result=>{
+						let data = util.returnData({
+				    		message:"该标签下的文章将全部归类到'其它'标签中~~"
+				    	})
+				        res.end(JSON.stringify(data));
+					})
 				})
 			})
 		}
@@ -365,6 +399,7 @@ app.post("/api/label/delLabel",(req,res)=>{
 //创建分类规则
 const classifySchema = new mongoose.Schema({
 	classify_name:String,
+	article_nums:Number,
 	create_time:Number
 })
 
@@ -380,10 +415,29 @@ app.get("/api/classify/classifyList",(req,res)=>{
 		$findParams = null;
 	}
 	Classify.find($findParams).then(result=>{
-		let data = util.returnData({
-			classifyList:result
-		})
-	    res.end(JSON.stringify(data));
+		//查询出来所有的分类
+		//循环查询每个分类下的文章数量
+		let $result = result,
+		nums = 0;
+		for(let i =0; i < $result.length; i++){
+			Article.find({classify:$result[i]._id}).then($article=>{
+				$result[i].article_nums = $article.length;
+				Classify.updateOne({_id:$result[i]._id},{article_nums:$article.length}).then($label=>{
+					console.log($label)
+				})
+				nums++;
+			})
+		}
+		//循环查询是否已经完成异步查询
+		let timer = setInterval(()=>{
+			if(nums == $result.length){
+				clearInterval(timer);
+				let data = util.returnData({
+					classifyList:$result
+				})
+	    		res.end(JSON.stringify(data));
+			}
+		},10)
 	})
 })
 
@@ -391,6 +445,7 @@ app.get("/api/classify/classifyList",(req,res)=>{
 app.post("/api/classify/addClassify",(req,res)=>{
 	let data = {
 		classify_name:req.body.classifyName,
+		article_nums:0,
 		createTime:new Date().getTime(),
 	}
 	Classify.create(data)
@@ -424,15 +479,17 @@ app.post("/api/classify/delClassify",(req,res)=>{
 		}else{
 			Classify.findOne({classify_name:'其它'}).then(resu=>{
 				Article.updateMany({classify:id},{classify:resu._id}).then(resul=>{
-					let data = util.returnData({
-			    		message:"该分类下的文章将全部归类到'其它'分类中~"
-			    	})
-			        res.end(JSON.stringify(data));
+			    	Classify.findOneAndDelete({_id:id}).then(result=>{
+						let data = util.returnData({
+				    		message:"该分类下的文章将全部归类到'其它'分类中~",
+				    	})
+				        res.end(JSON.stringify(data));
+					})
 				})
+				
 			})
 		}
 	})
-
 })
 
 //创建项目规则
