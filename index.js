@@ -216,6 +216,24 @@ app.post("/api/article/searchList",(req,res)=>{
 	    res.end(JSON.stringify(data));
 	})
 })
+//搜索根据classify和label分类
+app.post("/api/article/filtrateList",(req,res)=>{
+	let params = req.body;
+	Article.find().then(result=>{
+		let $filtrateList = [];
+		for(let i = 0; i < result.length; i++){
+			result[i].interactionNums = [result[i].articleWatch,result[i].articleLike,result[i].articleCommon]
+			if(result[i][params.$type] == params._id){
+				$filtrateList.push(result[i])
+			}
+		}
+		let data = util.returnData({
+			articleList:$filtrateList,
+	        total:$filtrateList.length
+		})
+	    res.end(JSON.stringify(data));
+	})
+})
 
 //删除文章
 app.post("/api/article/delArticle",(req,res)=>{
@@ -329,7 +347,7 @@ app.get("/api/label/labelList",(req,res)=>{
 			Article.find({tag:$result[i]._id}).then($article=>{
 				$result[i].article_nums = $article.length;
 				Label.updateOne({_id:$result[i]._id},{article_nums:$article.length}).then($label=>{
-					console.log($label)
+					
 				})
 				nums++;
 			})
@@ -423,7 +441,6 @@ app.get("/api/classify/classifyList",(req,res)=>{
 			Article.find({classify:$result[i]._id}).then($article=>{
 				$result[i].article_nums = $article.length;
 				Classify.updateOne({_id:$result[i]._id},{article_nums:$article.length}).then($label=>{
-					console.log($label)
 				})
 				nums++;
 			})
@@ -500,12 +517,13 @@ const projectSchema = new mongoose.Schema({
 	project_startTime:Number,
 	project_endTime:Number,
 	project_status:Number,
-	createTime:Number
+	createTime:Number,
+	project_label:String
 })
 
 Project = mongoose.model('Project',projectSchema)
 
-//写文章
+//添加项目
 app.post("/api/project/addProject",(req,res)=>{
 	let params = req.body,
 		data = {
